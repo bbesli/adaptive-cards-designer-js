@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Adaptive Card Designer</title>
+  </head>
+  <body>
+    <div id="designerRootHost" style="width: 100%; height: 100vh"></div>
+
+    <script type="module">
+      import { initializeDesigner } from '../ac-designer-package/ac-designer-package.js';
+
+      const sampleData = {
+        title: 'Sample Title',
+        description: 'Sample Description',
+        additionalField: 'Additional Data',
+      };
+
+      // Your custom Adaptive Card JSON template
+      const myAdaptiveCardJson = {
+        type: 'AdaptiveCard',
+        body: [
+          {
+            type: 'TextBlock',
+            text: 'Hello, world!',
+            size: 'large',
+          },
+        ],
+        actions: [
+          {
+            type: 'Action.OpenUrl',
+            title: 'Learn more',
+            url: 'https://adaptivecards.io',
+          },
+        ],
+      };
+
+      window.onload = function () {
+        initializeDesigner('designerRootHost', sampleData, myAdaptiveCardJson);
+      };
+    </script>
+  </body>
+</html>
