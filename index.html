@@ -6,6 +6,7 @@
   </head>
   <body>
     <div id="designerRootHost" style="width: 100%; height: 100vh"></div>
+    <button id="saveCardButton">Save Card</button>
 
     <script type="module">
       import { initializeDesigner } from '../ac-designer-package/ac-designer-package.js';
@@ -16,7 +17,6 @@
         additionalField: 'Additional Data',
       };
 
-      // Your custom Adaptive Card JSON template
       const myAdaptiveCardJson = {
         type: 'AdaptiveCard',
         body: [
@@ -35,8 +35,19 @@
         ],
       };
 
-      window.onload = function () {
-        initializeDesigner('designerRootHost', sampleData, myAdaptiveCardJson);
+      window.onload = async function () {
+        try {
+          const designer = await initializeDesigner('designerRootHost', sampleData, myAdaptiveCardJson);
+
+          document.getElementById('saveCardButton').addEventListener('click', () => {
+            const cardPayload = designer.getCard(); // Use getCard to get the current card payload
+            localStorage.setItem('savedCard', JSON.stringify(cardPayload));
+            alert('Card saved!');
+            window.location.href = 'page2.html'; // Redirect to page2.html
+          });
+        } catch (error) {
+          console.error('Error initializing designer:', error);
+        }
       };
     </script>
   </body>
