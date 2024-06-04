@@ -1,26 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8">
     <title>View Adaptive Card</title>
-    <script src="https://unpkg.com/adaptivecards@latest/dist/adaptivecards.min.js"></script>
-  </head>
-  <body>
+    <script src="https://cdn.jsdelivr.net/npm/adaptivecards/dist/adaptivecards.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/adaptive-expressions/lib/browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/adaptivecards-templating/dist/adaptivecards-templating.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
+    <script src="ac-designer-package/ac-card-renderer-package.js"></script>
+
+    <link rel="stylesheet" href="ac-designer-package/adaptivecard-styles.css">
+</head>
+<body style="background-color: grey;">
     <div id="adaptiveCardContainer" style="width: 100%; height: 100vh"></div>
-
     <script>
-      window.onload = function () {
-        const savedCardJson = localStorage.getItem('savedCard');
-        if (savedCardJson) {
-          const adaptiveCard = new AdaptiveCards.AdaptiveCard();
-          adaptiveCard.parse(JSON.parse(savedCardJson));
-
-          const renderedCard = adaptiveCard.render();
-          document.getElementById('adaptiveCardContainer').appendChild(renderedCard);
-        } else {
-          alert('No saved card found!');
+        const cardTemplatePayload = {
+    "type": "AdaptiveCard",
+    "body": [
+        {
+            "type": "TextBlock",
+            "size": "Medium",
+            "weight": "Bolder",
+            "text": "${title}"
+        },
+        {
+            "type": "ColumnSet",
+            "columns": [
+                {
+                    "type": "Column",
+                    "items": [
+                        {
+                            "type": "Image",
+                            "style": "Person",
+                            "url": "${creator.profileImage}",
+                            "altText": "${creator.name}",
+                            "size": "Small"
+                        }
+                    ],
+                    "width": "auto"
+                },
+                {
+                    "type": "Column",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "weight": "Bolder",
+                            "text": "${creator.name}",
+                            "wrap": true
+                        },
+                        {
+                            "type": "TextBlock",
+                            "spacing": "None",
+                            "text": "Created {{DATE(${createdUtc},SHORT)}}",
+                            "isSubtle": true,
+                            "wrap": true
+                        }
+                    ],
+                    "width": "stretch"
+                }
+            ]
+        },
+        {
+            "type": "TextBlock",
+            "text": "${description}",
+            "wrap": true
+        },
+        {
+            "type": "FactSet",
+            "facts": [
+                {
+                    "$data": "${properties}",
+                    "title": "${key}:",
+                    "value": "${value}"
+                }
+            ]
         }
-      };
+    ],
+    "actions": [
+        {
+            "type": "Action.ShowCard",
+            "title": "Set due date",
+            "card": {
+                "type": "AdaptiveCard",
+                "body": [
+                    {
+                        "type": "Input.Date",
+                        "id": "dueDate"
+                    },
+                    {
+                        "type": "Input.Text",
+                        "id": "comment",
+                        "placeholder": "Add a comment",
+                        "isMultiline": true
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "Action.Submit",
+                        "title": "OK"
+                    }
+                ],
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json"
+            }
+        },
+        {
+            "type": "Action.OpenUrl",
+            "title": "View",
+            "url": "${viewUrl}"
+        }
+    ],
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.6"
+};
+
+// Define the data context
+var dataContext = null;
+
+// URL of the JSON data
+const url = 'https://mocki.io/v1/7bff7382-0bfc-4b12-bd01-ebffb1088901';
+
+// Fetch the JSON data from the URL
+fetch(url)
+  .then(response => {
+    // Check if the response is successful
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+    // Parse the JSON from the response
+    return response.json();
+  })
+  .then(data => {
+    // Handle the JSON data here
+    dataContext = data;
+    var temp = localStorage.getItem('savedCard');
+// Parse the JSON string back into an object
+var savedCardPayload = JSON.parse(temp);
+// Create a Template instance from the template payload
+renderAdaptiveCard('adaptiveCardContainer', savedCardPayload, dataContext);
+  })
+  .catch(error => {
+    // Handle any errors that occurred during the fetch
+    console.error('There has been a problem with your fetch operation:', error);
+  });
+
+
     </script>
-  </body>
+</body>
 </html>

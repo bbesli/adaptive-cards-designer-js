@@ -3,6 +3,8 @@
     "start": "servor --reload"
   },
   "dependencies": {
+    "adaptive-expressions": "^4.22.2",
+    "adaptivecards-templating": "^2.3.1",
     "servor": "^4.0.2"
   }
 }

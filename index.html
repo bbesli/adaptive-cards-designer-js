@@ -3,12 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <title>Adaptive Card Designer</title>
+
+    <link href="
+https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css
+" rel="stylesheet">
+
   </head>
   <body>
-    <div id="designerRootHost" style="width: 100%; height: 100vh"></div>
-    <button id="saveCardButton">Save Card</button>
+    <div id="designerRootHost" style="width: 100%; height: 98.7vh; font-family: 'Roboto', sans-serif;">
+    </div>
 
     <script type="module">
+
       import { initializeDesigner } from '../ac-designer-package/ac-designer-package.js';
 
       const sampleData = {
@@ -36,19 +42,79 @@
       };
 
       window.onload = async function () {
-        try {
-          const designer = await initializeDesigner('designerRootHost', sampleData, myAdaptiveCardJson);
+    try {
+        const designer = await initializeDesigner('designerRootHost', sampleData, myAdaptiveCardJson);
+        
+        // Function to add the "Save Template" button
+        function addSaveTemplateButton() {
+            const previewModeButton = document.querySelector('.acd-toolbar-button.acd-icon-preview');
+            if (!previewModeButton) {
+                console.log('No preview mode button found.');
+                return;
+            }
 
-          document.getElementById('saveCardButton').addEventListener('click', () => {
-            const cardPayload = designer.getCard(); // Use getCard to get the current card payload
-            localStorage.setItem('savedCard', JSON.stringify(cardPayload));
-            alert('Card saved!');
-            window.location.href = 'page2.html'; // Redirect to page2.html
-          });
-        } catch (error) {
-          console.error('Error initializing designer:', error);
+            // Check if the button has already been added
+            if (document.querySelector('.acd-toolbar-button.acd-icon-save')) {
+                return;
+            }
+
+            const saveTemplateButton = document.createElement('button');
+            saveTemplateButton.type = 'button';
+            saveTemplateButton.className = 'acd-toolbar-button acd-icon-save';
+            saveTemplateButton.tabIndex = 0;
+            saveTemplateButton.title = 'Save Template';
+
+            // Create an icon element
+            const iconElement = document.createElement('span');
+            iconElement.className = 'fa fa-floppy-o'; // Font Awesome save icon class
+            iconElement.style.fontSize = '22px'; // Adjust the icon size as needed
+            iconElement.style.verticalAlign = 'middle'; // Center the icon vertically
+            iconElement.style.marginRight = '7px'; // Add some space between the icon and text
+
+            // Add the icon and text to the button
+            saveTemplateButton.appendChild(iconElement);
+            saveTemplateButton.appendChild(document.createTextNode('Save Template'));
+            
+            // Insert the button after the preview mode button
+            previewModeButton.insertAdjacentElement('afterend', saveTemplateButton);
+
+            // Add click event listener to save the template
+            saveTemplateButton.addEventListener('click', () => {
+                const cardPayload = designer.getCard(); // Get the current card payload
+                localStorage.setItem('savedCard', JSON.stringify(cardPayload));
+                window.location.href = 'page2.html'; // Redirect to page2.html
+            });
+
+            // Add click event listener to save the template
+            saveTemplateButton.addEventListener('click', () => {
+                const cardPayload = designer.getCard(); // Get the current card payload
+                const templateName = prompt('Enter a name for the template:');
+                if (templateName) {
+                    localStorage.setItem('savedCard', JSON.stringify(cardPayload));
+                    window.location.href = 'page2.html'; // Redirect to page2.html
+                }
+            });
         }
-      };
+
+        // Callback function for observer
+        function handleMutations(mutationsList, observer) {
+            for (let mutation of mutationsList) {
+                if (mutation.type === 'childList' && document.querySelector('.acd-toolbar-content')) {
+                    addSaveTemplateButton();
+                    observer.disconnect(); // Stop observing after initializing
+                }
+            }
+        }
+
+        // Ensure the toolbar is loaded before adding the button
+        const observer = new MutationObserver(handleMutations);
+
+        // Observe the designerRootHost for changes
+        observer.observe(document.getElementById('designerRootHost'), { childList: true, subtree: true });
+    } catch (error) {
+        console.error('Error initializing designer:', error);
+    }
+};
     </script>
   </body>
 </html>

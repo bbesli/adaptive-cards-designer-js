@@ -12,16 +12,16 @@ export function initializeDesigner(containerId, sampleData, templateJson) {
 
     try {
       // Load all necessary scripts
-      await loadScript('https://unpkg.com/adaptivecards@latest/dist/adaptivecards.min.js');
-      await loadScript('https://unpkg.com/adaptive-expressions@4/lib/browser.js');
-      await loadScript('https://unpkg.com/adaptivecards-templating@latest/dist/adaptivecards-templating.min.js');
-      await loadScript('https://unpkg.com/markdown-it@8.4.0/dist/markdown-it.min.js');
-      await loadScript('https://unpkg.com/adaptivecards-designer@latest/dist/adaptivecards-designer-standalone.min.js');
-      await loadScript('https://unpkg.com/monaco-editor@0.17.1/min/vs/loader.js');
+      await loadScript('https://cdn.jsdelivr.net/npm/adaptivecards/dist/adaptivecards.min.js');
+      await loadScript('https://cdn.jsdelivr.net/npm/adaptive-expressions/lib/browser.min.js');
+      await loadScript('https://cdn.jsdelivr.net/npm/adaptivecards-templating/dist/adaptivecards-templating.min.js');
+      await loadScript('https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js');
+      await loadScript('ac-designer-package/adaptivecard-depencencies/adaptivecards-designer.min.js');
+      await loadScript('https://cdn.jsdelivr.net/npm/monaco-editor/min/vs/loader.js');
 
       // Ensure Monaco is correctly loaded
       require.config({
-        paths: { vs: 'https://unpkg.com/monaco-editor@0.17.1/min/vs' },
+        paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor/min/vs' },
       });
       require(['vs/editor/editor.main'], () => {
         ACDesigner.GlobalSettings.enableDataBindingSupport = true;
@@ -32,8 +32,9 @@ export function initializeDesigner(containerId, sampleData, templateJson) {
 
         ACDesigner.GlobalSettings.sampleData = sampleData;
 
-        let designer = new ACDesigner.CardDesigner();
-        designer.assetPath = 'https://unpkg.com/adaptivecards-designer@latest/dist';
+        let hostContainers = ACDesigner.defaultMicrosoftHosts;
+        let designer = new ACDesigner.CardDesigner(hostContainers);
+        designer.assetPath = 'https://cdn.jsdelivr.net/npm/adaptivecards-designer/dist';
         designer.attachTo(document.getElementById(containerId));
 
         designer.monacoModuleLoaded();
